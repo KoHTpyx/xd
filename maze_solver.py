@@ -9,17 +9,20 @@ def handle_error():
         print("Перавышана дапушчальная колькасць памылак. Праграма будзе завершана.")
         sys.exit()
 
-def get_start_position(rows, cols):
+def get_start_position(maze, rows, cols):
     while True:
         try:
             start_row = int(input("Увядзіце пачатковы радок: "))
             start_col = int(input("Увядзіце пачатковы слупок: "))
             if not (0 <= start_row < rows and 0 <= start_col < cols):
-                raise ValueError
+                raise ValueError("Пачатковая пазіцыя не знаходзіцца ў межах лабірынту")
+            if maze[start_row][start_col] == 0:
+                raise ValueError("Пачатковая пазіцыя не можа быць сцяной (0)")
             return start_row, start_col
-        except ValueError:
-            print("Няправільны ўвод пачатковай пазіцыі")
+        except ValueError as err:
+            print(str(err))
             handle_error()
+
 
 def isValidMove(position, rows, cols):
     row, col = position
