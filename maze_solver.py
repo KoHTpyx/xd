@@ -43,7 +43,7 @@ def get_neighbors(position, maze):
     
     return neighbors
 
-def shortest_path(maze, start):
+def shortest_path(maze, start, end=None):
     rows = len(maze)
     cols = len(maze[0])
 
@@ -60,38 +60,68 @@ def shortest_path(maze, start):
                 if shortest_distances[neighbor[0]][neighbor[1]] == sys.maxsize:
                     shortest_distances[neighbor[0]][neighbor[1]] = shortest_distances[current[0]][current[1]] + 1
                     queue.append(neighbor)
+    if end is not None:
+        return shortest_distances, end
+    else:
+        return shortest_distances
 
-    return shortest_distances
+def print_directions(shortest_distances, maze, exit_position=None):
+    rows = len(maze)
+    cols = len(maze[0])
 
-def print_directions(shortest_distances, maze):
-    rows = len(shortest_distances)
-    cols = len(shortest_distances[0])
+    if exit_position:
+        position = exit_position
+        distance = shortest_distances[position[0]][position[1]]
 
-    for row in range(rows):
-        for col in range(cols):
-            position = (row, col)
-            distance = shortest_distances[row][col]
-
-            if distance == sys.maxsize:
-                print(f"Пазіцыя {position}: недасяжна")
-            elif distance == 0:
-                print(f"Пазіцыя {position}: стартавая пазіцыя")
+        if distance == sys.maxsize:
+            print(f"Канчатковая пазіцыя {position}: недасяжна")
+        elif distance == 0:
+            print(f"Канчатковая пазіцыя {position}: стартавая пазіцыя")
+        else:
+            path = []
+            current = position
+            while distance > 0:
+                for neighbor in get_neighbors(current, maze):
+                    if isValidMove(neighbor, rows, cols) and shortest_distances[neighbor[0]][neighbor[1]] == distance - 1:
+                        path.append(neighbor)
+                        current = neighbor
+                        distance -= 1
+                        break
+            path.reverse()
+            directions = ' -> '.join([f"({pos[0]}, {pos[1]})" for pos in path])
+            steps = len(path)
+            if steps == 1:
+                print(f"Канчатковая пазіцыя {position}: рухайцеся {directions} ({steps} крок)")
+            elif 2 <= steps % 10 <= 4 and (steps < 10 or steps > 20):
+                print(f"Канчатковая пазіцыя {position}: рухайцеся {directions} ({steps} крокі)")
             else:
-                path = []
-                current = position
-                while distance > 0:
-                    for neighbor in get_neighbors(current, maze):
-                        if isValidMove(neighbor, rows, cols) and shortest_distances[neighbor[0]][neighbor[1]] == distance - 1:
-                            path.append(neighbor)
-                            current = neighbor
-                            distance -= 1
-                            break
-                path.reverse()
-                directions = ' -> '.join([f"({pos[0]}, {pos[1]})" for pos in path])
-                steps = len(path)
-                if steps % 10 == 1 and steps != 11:
-                    print(f"Пазіцыя {position}: рухайцеся {directions} ({steps} крок)")
-                elif 2 <= steps % 10 <= 4 and (steps < 10 or steps > 20):
-                    print(f"Пазіцыя {position}: рухайцеся {directions} ({steps} крокі)")
+                print(f"Канчатковая пазіцыя {position}: рухайцеся {directions} ({steps} крокаў)")
+    else:
+        for row in range(rows):
+            for col in range(cols):
+                position = (row, col)
+                distance = shortest_distances[row][col]
+
+                if distance == sys.maxsize:
+                    print(f"Пазіцыя {position}: недасяжна")
+                elif distance == 0:
+                    print(f"Канчатковая пазіцыя {position}: стартавая пазіцыя")
                 else:
-                    print(f"Пазіцыя {position}: рухайцеся {directions} ({steps} крокаў)")
+                    path = []
+                    current = position
+                    while distance > 0:
+                        for neighbor in get_neighbors(current, maze):
+                            if isValidMove(neighbor, rows, cols) and shortest_distances[neighbor[0]][neighbor[1]] == distance - 1:
+                                path.append(neighbor)
+                                current = neighbor
+                                distance -= 1
+                                break
+                    path.reverse()
+                    directions = ' -> '.join([f"({pos[0]}, {pos[1]})" for pos in path])
+                    steps = len(path)
+                    if steps == 1:
+                        print(f"Пазіцыя {position}: рухайцеся {directions} ({steps} крок)")
+                    elif 2 <= steps % 10 <= 4 and (steps < 10 or steps > 20):
+                        print(f"Пазіцыя {position}: рухайцеся {directions} ({steps} крокі)")
+                    else:
+                        print(f"Пазіцыя {position}: рухайцеся {directions} ({steps} крокаў)")
