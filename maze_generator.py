@@ -1,14 +1,7 @@
-import sys
+import random
 from maze_solver import handle_error
 
 error_count = 0
-
-def handle_error():
-    global error_count
-    error_count += 1
-    if error_count == 3:
-        print("Перавышана дапушчальная колькасць памылак. Праграма будзе завершана.")
-        sys.exit()
 
 def get_maze_size():
     while True:
@@ -17,7 +10,7 @@ def get_maze_size():
             cols = int(input("Увядзіце колькасць слупкоў у лабірынце: "))
             if rows <= 0 or cols <= 0:
                 raise ValueError
-            return rows, cols
+            return rows, cols   
         except ValueError:
             print("Няправільны ўвод радкоў/слупкоў")
             handle_error()
@@ -39,11 +32,33 @@ def parse_maze_input(rows, cols):
                 handle_error()
     return maze
 
-def get_maze(rows, cols):
-    print("Увядзіце лабірынт (0 - сцяна, 1 - праход):")
-    try:
-        maze = parse_maze_input(rows, cols)
-    except ValueError:
-        handle_error()
-        return get_maze(rows, cols)
+def generate_maze(rows, cols):
+    maze = []
+    for _ in range(rows):
+        row = [random.randint(0, 1) for _ in range(cols)]
+        maze.append(row)
     return maze
+    
+
+def get_maze(rows, cols):
+    print("Вы хочаце самастойна ўвесці лабірынт або згенераваць яго аўтаматычна?")
+    while True:
+        choice = input("Выберыце варыянт (увядзіце 'самастойна' або 'аўтаматычна'): ")
+        if choice == "самастойна":
+            print("Увядзіце лабірынт (0 - сцяна, 1 - праход):")
+            try:
+               return parse_maze_input(rows, cols)
+            except ValueError:
+                handle_error()
+                continue
+        elif choice == "аўтаматычна":
+            maze = generate_maze(rows, cols)
+            print("Сгенерированный лабиринт:")
+            for row in maze:
+                for cell in row:
+                    print(cell, end=' ')
+                print()
+            return maze
+        else:
+            print("Неправільны выбар. Калі ласка, паспрабуйце яшчэ раз.")
+            handle_error()
